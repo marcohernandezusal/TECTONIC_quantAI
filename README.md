@@ -25,7 +25,7 @@ This repository contains machine learning pipelines for modeling and predicting 
 
 ## 📊 Problem Overview
 
-We aim to predict corrosion levels from environmental factors such as **Temperature**, **Salinity**, and **Pressure**. These predictions will help guide conservation strategies for UCH artifacts.
+We aim to model corrosion levels from environmental factors such as **Temperature**, **Salinity**, and **Pressure**. These approximations will help guide conservation strategies for UCH artifacts.
 
 ---
 
@@ -78,7 +78,7 @@ python supervised_models.py
 
 ## 🤖 Semi-Supervised Learning (Self-Training)
 
-This pipeline uses only 10% of labeled data and gradually augments training data using confident predictions from the model itself.
+This pipeline uses only 10% of labeled data and gradually augments training data using confident predictions from the model itself. As new data becomes available, we can continue training with both labeled and unlabeled instances.
 
 To run:
 ```bash
@@ -135,8 +135,4 @@ pip install -r requirements.txt
 
 MIT License. For research and educational use.
 
----
 
-## 📧 Contact
-
-For questions or collaboration inquiries, please reach out to the maintainers.
