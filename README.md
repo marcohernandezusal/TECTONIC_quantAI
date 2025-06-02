@@ -31,30 +31,6 @@ This repository contains machine learning pipelines for modeling and predicting 
 ```
 ---
 
-## 🌐 Interactive Web Interface
-
-Launch the frontend interface with Streamlit:
-```bash
-streamlit run front_sim.py
-```
-
-### Features:
-- 📤 Upload `.csv` or `.xlsx` files with environmental data
-- 🧠 Select between **supervised** and **selftraining** models
-- 🔁 Optionally enable **retraining** when using selftraining mode
-- 📈 Visualize:
-  - Corrosion predictions
-  - Pseudo-labeling progression during selftraining
-- 📥 Download:
-  - Predictions (CSV)
-  - Logs (optional)
-
-Example screenshot:
-
-![Frontend Screenshot](training/figures/streamlit_view.png)
-
----
-
 ## 📊 Problem Overview
 
 We aim to predict corrosion levels from environmental factors such as **Temperature**, **Salinity**, and **Pressure**. These predictions will help guide conservation strategies for UCH artifacts.
@@ -140,6 +116,30 @@ Correlation matrix between input features and the corrosion target:
 
 ---
 
+## 🌐 Interactive Web Interface
+
+Launch the frontend interface with Streamlit:
+```bash
+streamlit run front_sim.py
+```
+
+### Features:
+- 📤 Upload `.csv` or `.xlsx` files with environmental data
+- 🧠 Select between **supervised** and **selftraining** models
+- 🔁 Optionally enable **retraining** when using selftraining mode
+- 📈 Visualize:
+  - Corrosion predictions
+  - Pseudo-labeling progression during selftraining
+- 📥 Download:
+  - Predictions (CSV)
+  - Logs
+
+Example screenshot:
+
+![Frontend Screenshot](training/figures/streamlit_view.png)
+
+---
+
 ## 📋 Requirements
 
 Install dependencies with:
@@ -161,8 +161,3 @@ pip install -r requirements.txt
 
 MIT License. For research and educational use.
 
----
-
-## 📧 Contact
-
-For questions or collaboration inquiries, please reach out to the maintainers.
