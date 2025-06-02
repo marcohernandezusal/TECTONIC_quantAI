@@ -51,6 +51,8 @@ def read_input_file(filepath):
     log.info(f"Loading input file: {filepath}")
     if filepath.endswith(".xlsx"):
         df = pd.read_excel(filepath)
+        print(f"Excel file loaded with {len(df)} rows and {len(df.columns)} columns.")
+        print(f"Columns: {', '.join(df.columns)}")
     elif filepath.endswith(".csv"):
         try:
             df = pd.read_csv(filepath, index_col=None)
