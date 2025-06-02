@@ -5,7 +5,7 @@ This repository contains machine learning pipelines for modeling and predicting 
 ---
 
 ## 🗂 Repository Structure
-
+```
 .
 ├── front_sim.py                   # Streamlit web frontend
 ├── deployment/
@@ -28,7 +28,7 @@ This repository contains machine learning pipelines for modeling and predicting 
 ├── scaler/                       # Stored scalers
 ├── Dataset_Corrosion.csv         # Input dataset
 └── README.md
-
+```
 ---
 
 ## 🌐 Interactive Web Interface
