@@ -1,8 +1,10 @@
+import os
 import pandas as pd
+import logging
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-def load_and_split_data(filepath, target='Corrosion', test_size=0.2, random_state=21, random=True):
+def load_and_split_data(filepath, target='Corrosion', test_size=0.2, random_state=21, random=False):
     df = pd.read_csv(filepath, index_col=False, header=0)
     if target not in df.columns:
         raise ValueError(f"Target column '{target}' not found in the dataset.")
@@ -19,9 +21,14 @@ def load_and_split_data(filepath, target='Corrosion', test_size=0.2, random_stat
         y_test = y.iloc[-int(len(y) * test_size):]
         return X_train, X_test, y_train, y_test
 
-def scale_features(X_train, X_test):
+def scale_features(X_train, X_test, return_scaler=False):
     scaler = StandardScaler()
-    return scaler.fit_transform(X_train), scaler.transform(X_test)
+    if return_scaler:
+        scaler.fit(X_train)
+        return scaler, scaler.transform(X_train), scaler.transform(X_test)
+    else:
+        scaler.fit(X_train)
+        return scaler.transform(X_train), scaler.transform(X_test)
 
 def get_labeled_unlabeled_split(X, y, labeled_fraction=0.1, random_state=42):
     """
@@ -37,3 +44,32 @@ def get_labeled_unlabeled_split(X, y, labeled_fraction=0.1, random_state=42):
     y_lab = y.loc[X_lab.index]
     X_unlab = X.drop(index=X_lab.index)
     return X_lab.reset_index(drop=True), y_lab.reset_index(drop=True), X_unlab.reset_index(drop=True)
+
+
+def read_input_file(filepath):
+    log = logging.getLogger(__name__)
+    log.info(f"Loading input file: {filepath}")
+    if filepath.endswith(".xlsx"):
+        df = pd.read_excel(filepath)
+    elif filepath.endswith(".csv"):
+        try:
+            df = pd.read_csv(filepath, index_col=None)
+        except Exception as e:
+            log.warning(f"Default CSV read failed: {e}")
+            for delim in [",", ";", "\t"]:
+                try:
+                    df = pd.read_csv(filepath, delimiter=delim, index_col=None)
+                    log.info(f"CSV loaded with delimiter '{delim}'")
+                    break
+                except Exception:
+                    continue
+            else:
+                raise ValueError("Could not parse CSV with common delimiters.")
+    else:
+        raise ValueError("Unsupported file type. Use .csv or .xlsx")
+    return df
+
+def check_columns(df, expected_features):
+    missing = [col for col in expected_features if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing expected feature columns: {missing}")

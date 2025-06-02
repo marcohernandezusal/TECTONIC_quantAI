@@ -6,26 +6,58 @@ This repository contains machine learning pipelines for modeling and predicting 
 
 ## 🗂 Repository Structure
 
-```
 .
-├── main_self_training.py           # Semi-supervised learning pipeline
-├── supervised_models.py            # Supervised learning pipeline
+├── front_sim.py                   # Streamlit web frontend
+├── deployment/
+│   ├── predict_model.py          # Inference logic for supervised & self-training models
+│   └── retrain_selftraining.py   # Self-training retraining script with Streamlit logging
 ├── pipeline/
-│   ├── data_loader.py              # Data preprocessing and partitioning
-│   ├── evaluation.py               # Model evaluation and visualization
-│   ├── models.py                   # Model definitions + self-training wrapper
-├── figures/                        # Output plots (examples below)
-├── results/                        # Cross-validation and test metrics
-├── logs/                           # Execution logs
-├── Dataset_Corrosion.csv          # Input dataset (not included)
+│   ├── data_loader.py            # Data preprocessing and validation
+│   ├── evaluation.py             # Model evaluation and plotting
+│   ├── models.py                 # Base and self-training model definitions
+│   └── utils.py                  # Utility functions (logging, file management)
+├── outputs/                      # Inference results and figures
+├── models/                       # Stored models and pointer to latest
+├── training/                     # Model training scripts and outputs
+│   ├── self_training_models.py   # Self-training pipeline
+│   ├── supervised_models.py      # Supervised learning pipeline
+│   ├── EDA.ipynb                 # EDA notebook
+│   ├── logs/                     # Execution logs
+│   ├── figures/                  # Plots for EDA and model evaluation
+│   └── results/                  # Cross-validation and test metrics
+├── scaler/                       # Stored scalers
+├── Dataset_Corrosion.csv         # Input dataset
 └── README.md
+
+---
+
+## 🌐 Interactive Web Interface
+
+Launch the frontend interface with Streamlit:
+```bash
+streamlit run front_sim.py
 ```
+
+### Features:
+- 📤 Upload `.csv` or `.xlsx` files with environmental data
+- 🧠 Select between **supervised** and **selftraining** models
+- 🔁 Optionally enable **retraining** when using selftraining mode
+- 📈 Visualize:
+  - Corrosion predictions
+  - Pseudo-labeling progression during selftraining
+- 📥 Download:
+  - Predictions (CSV)
+  - Logs (optional)
+
+Example screenshot:
+
+![Frontend Screenshot](training/figures/streamlit_view.png)
 
 ---
 
 ## 📊 Problem Overview
 
-We aim to model corrosion levels from environmental factors such as **Temperature**, **Salinity**, and **Pressure**. These approximations will help guide conservation strategies for UCH artifacts.
+We aim to predict corrosion levels from environmental factors such as **Temperature**, **Salinity**, and **Pressure**. These predictions will help guide conservation strategies for UCH artifacts.
 
 ---
 
@@ -46,7 +78,7 @@ Since no direct corrosion measurements exist, the **Corrosion** variable was inf
 
 ### 🔬 Target Distribution
 
-![Corrosion Distribution](figures/corrosion_distribution.png)
+![Corrosion Distribution](training/figures/corrosion_distribution.png)
 
 ---
 
@@ -64,38 +96,39 @@ python supervised_models.py
 
 ### 📈 Cross-Validation Results
 
-![CV Scores](figures/model_cv_r2_scores.png)
+![CV Scores](training/figures/model_cv_r2_scores.png)
 
 ### ✅ Best Model Test Performance
 
-![Supervised Test Perf](figures/best_model_test_performance.png)
+![Supervised Test Perf](training/figures/best_model_test_performance.png)
 
 ### 🎯 Predictions vs Actual
 
-![Supervised Predictions](figures/pred_vs_actual.png)
+![Supervised Predictions](training/figures/pred_vs_actual.png)
 
 ---
 
 ## 🤖 Semi-Supervised Learning (Self-Training)
 
-This pipeline uses only 10% of labeled data and gradually augments training data using confident predictions from the model itself. As new data becomes available, we can continue training with both labeled and unlabeled instances.
+This pipeline uses only 10% of labeled data and gradually augments training data using confident predictions from the model itself.
 
 To run:
 ```bash
+cd training
 python main_self_training.py
 ```
 
 ### 🧪 CV Results Across Models
 
-![Self-Training CV](figures/self_training_cv_r2_scores.png)
+![Self-Training CV](training/figures/self_training_cv_r2_scores.png)
 
 ### 🎯 Predictions vs Actual
 
-![Self-Training Predictions](figures/self_training_predictions.png)
+![Self-Training Predictions](training/figures/self_training_predictions.png)
 
 ### ✅ Final Test Performance
 
-![Self-Training Test Perf](figures/self_training_test_performance.png)
+![Self-Training Test Perf](training/figures/self_training_test_performance.png)
 
 ---
 
@@ -103,7 +136,7 @@ python main_self_training.py
 
 Correlation matrix between input features and the corrosion target:
 
-![Correlation Matrix](figures/correlation_matrix.png)
+![Correlation Matrix](training/figures/correlation_matrix.png)
 
 ---
 
@@ -116,6 +149,7 @@ pip install -r requirements.txt
 ```
 
 ### Main libraries:
+- `streamlit`
 - `scikit-learn`
 - `pandas`, `numpy`
 - `matplotlib`, `seaborn`
@@ -123,16 +157,12 @@ pip install -r requirements.txt
 
 ---
 
-## 📝 Notes
-
-- Ensure the dataset `Dataset_Corrosion.csv` is available before running.
-- Logs for each execution are saved in the `logs/` folder.
-- Figures and metrics are automatically saved to `figures/` and `results/`.
-
----
-
 ## © License
 
 MIT License. For research and educational use.
 
+---
 
+## 📧 Contact
+
+For questions or collaboration inquiries, please reach out to the maintainers.

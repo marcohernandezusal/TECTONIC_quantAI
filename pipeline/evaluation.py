@@ -130,3 +130,18 @@ def plot_test_performance(metrics_dict, output_path="figures/best_model_test_per
     plt.close()
     logging.info(f"Best model test performance plot saved: {output_path}")
     
+    
+    
+def plot_predictions_array(y_pred, save_path):
+    """
+    Plot predicted values and save the figure at 300 DPI.
+    """
+    plt.figure(figsize=(10, 4))
+    plt.plot(y_pred, label="Predicted Corrosion")
+    plt.title("Predicted Corrosion Values")
+    plt.xlabel("Sample Index")
+    plt.ylabel("Corrosion")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300)
+    plt.close()

@@ -93,7 +93,6 @@ class PTMLPRegressor(BaseEstimator, RegressorMixin):
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item() * xb.size(0)
-            # you could add early stopping here if you like
         return self
 
     def predict(self, X):

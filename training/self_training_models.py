@@ -6,6 +6,10 @@ import pandas as pd
 from sklearn.model_selection import KFold
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
+
+# Add previous directory ('..') to path to import local modules
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from pipeline.data_loader import load_and_split_data, scale_features, get_labeled_unlabeled_split
 from pipeline.evaluation import evaluate_model, plot_predictions, plot_test_performance, plot_cv_scores
 from pipeline.models import get_models_and_params, SelfTrainingRegressor

@@ -1,4 +1,3 @@
-### File: main.py
 import os
 os.environ['LOKY_MAX_CPU_COUNT'] = '4'
 import logging
@@ -7,6 +6,16 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+# Add previous directory ('..') to path to import local modules
+import sys
+# --- Set up base directory ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))              # Folder of this script
+PARENT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))        # Parent folder (for pipeline/)
+
+# --- Add parent directory to sys.path so we can import 'pipeline' ---
+if PARENT_DIR not in sys.path:
+    sys.path.insert(0, PARENT_DIR)
 from pipeline.data_loader import load_and_split_data, scale_features
 from pipeline.models import get_models_and_params
 from sklearn.model_selection import GridSearchCV
@@ -28,12 +37,13 @@ logging.basicConfig(
 def main():
     logging.info("Starting corrosion regression pipeline.")
 
-    # Debugging dataset
-    df = debug_data("Dataset_Corrosion.csv")
-
     # Load and preprocess data
-    X_trainval, X_test, y_trainval, y_test = load_and_split_data("Dataset_Corrosion.csv", test_size=0.2)
-    X_trainval_scaled, X_test_scaled = scale_features(X_trainval, X_test)
+    X_trainval, X_test, y_trainval, y_test = load_and_split_data("../Dataset_Corrosion.csv", test_size=0.2)
+    scaler, X_trainval_scaled, X_test_scaled = scale_features(X_trainval, X_test, return_scaler=True)
+    scaler_path = "../scaler/scaler_supervised.pkl"
+    os.makedirs("../scaler", exist_ok=True)
+    joblib.dump(scaler, scaler_path)
+    logging.info("Scaler saved to scaler/scaler_supervised.pkl")
     # scale target variable
     y_trainval_scaled = (y_trainval - y_trainval.min()) / (y_trainval.max() - y_trainval.min())
     y_test_scaled = (y_test - y_test.min()) / (y_test.max() - y_test.min())
