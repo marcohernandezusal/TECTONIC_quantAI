@@ -1,0 +1,11 @@
+{
+  "model_type": "selftraining",
+  "timestamp": "20250606_112514",
+  "features": [
+    "Temperature",
+    "Salinity",
+    "Pressure"
+  ],
+  "input_source": "tmpg0dsop61SensorReadings_4columns.csv",
+  "scaler_used": "scaler/scaler.pkl"
+}

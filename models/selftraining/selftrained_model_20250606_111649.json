@@ -1,0 +1,11 @@
+{
+  "model_type": "selftraining",
+  "timestamp": "20250606_111649",
+  "features": [
+    "Temperature",
+    "Salinity",
+    "Pressure"
+  ],
+  "input_source": "tmpwn31koc5Dataset_Corrosion_notarget.xlsx",
+  "scaler_used": "scaler/scaler.pkl"
+}

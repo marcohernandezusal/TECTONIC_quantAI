@@ -1,54 +1,71 @@
 # 🧪 Corrosion Prediction in Underwater Cultural Heritage Environments
 
-This repository contains machine learning pipelines for modeling and predicting corrosion in underwater cultural heritage (UCH) environments using both **supervised** and **semi-supervised (self-training)** regression techniques.
+This repository hosts the **quantAI micro-service** for modelling and predicting corrosion in underwater cultural-heritage (UCH) environments.  
+It now follows a **front ↔ back separation**:
+
+```
+┌─────────────┐ HTTP/JSON  ┌───────────────────────┐
+│ Streamlit   │──────────▶│ FastAPI “quantAI API” │
+│ multipage   │           │  (uvicorn)            │
+└─────────────┘           └────────────────────────┘
+```
+
+* **Streamlit** – user interface only (file upload, buttons, plots).  
+* **FastAPI**   – runs the ML pipelines and stores metadata in SQLite (or Postgres).
 
 ---
 
 ## 🗂 Repository Structure
-```
+
+```text
 .
-├── front_sim.py                   # Streamlit web frontend
-├── deployment/
-│   ├── predict_model.py          # Inference logic for supervised & self-training models
-│   └── retrain_selftraining.py   # Self-training retraining script with Streamlit logging
-├── pipeline/
-│   ├── data_loader.py            # Data preprocessing and validation
-│   ├── evaluation.py             # Model evaluation and plotting
-│   ├── models.py                 # Base and self-training model definitions
-│   └── utils.py                  # Utility functions (logging, file management)
-├── outputs/                      # Inference results and figures
-├── models/                       # Stored models and pointer to latest
-├── training/                     # Model training scripts and outputs
-│   ├── self_training_models.py   # Self-training pipeline
-│   ├── supervised_models.py      # Supervised learning pipeline
-│   ├── EDA.ipynb                 # EDA notebook
-│   ├── logs/                     # Execution logs
-│   ├── figures/                  # Plots for EDA and model evaluation
-│   └── results/                  # Cross-validation and test metrics
-├── scaler/                       # Stored scalers
-├── Dataset_Corrosion.csv         # Input dataset
-└── README.md
+├── Home.py                     # Streamlit landing page (renders this README)
+├── pages/
+│   └── 1_Quant_models.py       # UI to call the API and visualise results
+├── utils_front.py              # Shared helpers for the Streamlit pages
+├── fastapi_main.py             # FastAPI backend (models, sessions, DB)
+│
+├── deployment/                 # Thin wrappers reused by the API
+│   ├── predict_model.py
+│   └── retrain_selftraining.py
+├── pipeline/                   # Core data / modelling code (unchanged)
+├── training/                   # Training notebooks, figures & scripts
+├── outputs/ , models/ , scaler/ , Dataset_Corrosion.csv
+└── requirements.txt , README.md
 ```
+
+> **Legacy file** `front_sim.py` has been superseded by the multipage UI and can be deleted.
+
 ---
 
 ## 📊 Problem Overview
 
-We aim to predict corrosion levels from environmental factors such as **Temperature**, **Salinity**, and **Pressure**. These predictions will help guide conservation strategies for UCH artifacts.
+We predict corrosion levels from environmental factors – **Temperature, Salinity, Pressure** – to support conservation strategies for UCH artefacts.
 
 ---
 
 ## 📁 Dataset Description
 
-The dataset `Dataset_Corrosion.csv` was compiled by members of the BISITE research group (Carolina Villoria Torres and Juan Manuel Núñez Velasco). It contains:
+The dataset `Dataset_Corrosion.csv` was compiled by the BISITE research group (Carolina Villoria Torres & Juan Manuel Núñez Velasco):
 
-- **Temperature**, **Salinity**, and **Pressure** readings collected from **SeaDataNet CDI** and **ODATIS-Coriolis** datasets.
-- Data corresponds to the nearest available locations to the **TECTONIC pilot sites**.
+* Readings sourced from **SeaDataNet CDI** & **ODATIS-Coriolis**.
+* Locations closest to **TECTONIC pilot sites**.
+* **Corrosion** inferred via **Kriging interpolation** (Cressie & Johannesson 2008) using data from **Wang et al. 2021**.
 
-Since no direct corrosion measurements exist, the **Corrosion** variable was inferred using **Kriging interpolation** (Cressie & Johannesson, 2008), based on data tables from **Wang et al. (2021)**.
+<details>
+<summary><strong>References</strong></summary>
 
-### 📚 References:
-- Wang, Z., Sobey, A. J., & Wang, Y. (2021). Corrosion prediction for bulk carrier via data fusion of survey and experimental measurements. *Materials & Design*, 208, 109910.
-- Cressie, N., & Johannesson, G. (2008). Fixed rank kriging for very large spatial data sets. *Journal of the Royal Statistical Society: Series B*, 70(1), 209–226.
+* Wang, Z., Sobey, A. J., & Wang, Y. (2021). *Materials & Design*, 208, 109910.  
+* Cressie, N., & Johannesson, G. (2008). *JRSS B*, 70 (1), 209-226.
+</details>
+
+---
+
+### 🔬 Target Distribution
+
+![Corrosion Distribution](training/figures/corrosion_distribution.png)
+
+---
 
 ---
 
@@ -116,25 +133,43 @@ Correlation matrix between input features and the corrosion target:
 
 ---
 
-## 🌐 Interactive Web Interface
+## 🖧 quantAI API (FastAPI)
 
-Launch the frontend interface with Streamlit:
+| Verb | Route | Purpose |
+|------|-------|---------|
+| **POST** | `/sessions` | Create or reuse a session (returns UUID). |
+| **POST** | `/predict` | Run supervised prediction on uploaded file. |
+| **POST** | `/selftraining` | Run self-training; optional `retrain=true`. |
+| **GET**  | `/predictions/{id}/csv` | Download CSV results for that prediction. |
+| **GET**  | `/predictions/{id}/plot` | Download PNG plot. |
+| **GET**  | `/models`, `/models/{id}` | Register & list models (future). |
+
+Default DB is SQLite (`sqlite:///./tectonic_ai.db`); override with `DATABASE_URL`.
+
+Start the backend:
+
 ```bash
-streamlit run front_sim.py
+uvicorn fastapi_main:app --reload
 ```
 
-### Features:
-- 📤 Upload `.csv` or `.xlsx` files with environmental data
-- 🧠 Select between **supervised** and **selftraining** models
-- 🔁 Optionally enable **retraining** when using selftraining mode
-- 📈 Visualize:
-  - Corrosion predictions
-  - Pseudo-labeling progression during selftraining
-- 📥 Download:
-  - Predictions (CSV)
-  - Logs
+---
 
-Example screenshot:
+## 🌐 Interactive Web Interface (Streamlit multipage)
+
+```bash
+# 1) Launch backend (above)
+# 2) Optional – point front-end to a remote backend
+export API_URL="http://localhost:8000"        # Windows CMD: set API_URL=...
+# 3) Start UI
+streamlit run Home.py
+```
+
+### Front-end features
+* 📤 Upload `.csv` / `.xlsx`
+* 🧠 Choose **supervised** or **selftraining**
+* 🔁 Optional retraining flag for self-training
+* 📈 Visualise predictions & pseudo-labelling
+* 📥 Download predictions (CSV) & logs
 
 ![Frontend Screenshot](training/figures/streamlit_view.png)
 
@@ -142,22 +177,13 @@ Example screenshot:
 
 ## 📋 Requirements
 
-Install dependencies with:
-
 ```bash
 pip install -r requirements.txt
 ```
 
-### Main libraries:
-- `streamlit`
-- `scikit-learn`
-- `pandas`, `numpy`
-- `matplotlib`, `seaborn`
-- `joblib`
+Key libraries: `fastapi`, `uvicorn`, `httpx`, `sqlalchemy`, `streamlit`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `joblib`.
 
 ---
 
 ## © License
-
-MIT License. For research and educational use.
-
+MIT License – research & educational use.
